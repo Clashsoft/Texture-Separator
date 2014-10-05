@@ -44,7 +44,7 @@ public class TextureSeperator
 	
 	public TextureSeperator()
 	{
-		initialize();
+		this.initialize();
 	}
 	
 	private void initialize()
@@ -70,11 +70,11 @@ public class TextureSeperator
 		
 		this.buttonSelectFile = new JButton("...");
 		this.buttonSelectFile.addActionListener(e -> {
-			int ret = fileChooser.showOpenDialog(frame);
+			int ret = this.fileChooser.showOpenDialog(this.frame);
 			if (ret == JFileChooser.APPROVE_OPTION)
 			{
-				File file = fileChooser.getSelectedFile();
-				textFieldFile.setText(file.getAbsolutePath());
+				File file = this.fileChooser.getSelectedFile();
+				this.textFieldFile.setText(file.getAbsolutePath());
 			}
 		});
 		this.frame.getContentPane().add(this.buttonSelectFile, "12, 2");
@@ -105,12 +105,12 @@ public class TextureSeperator
 		
 		this.buttonSeperate = new JButton("Seperate");
 		this.buttonSeperate.addActionListener(e -> {
-			File file = new File(textFieldFile.getText());
-			int offsetX = (int) spinnerOffsetX.getValue();
-			int offsetY = (int) spinnerOffsetY.getValue();
-			int width = (int) spinnerWidth.getValue();
-			int height = (int) spinnerHeight.getValue();
-			seperate(file, offsetX, offsetY, width, height);
+			File file = new File(this.textFieldFile.getText());
+			int offsetX = (int) this.spinnerOffsetX.getValue();
+			int offsetY = (int) this.spinnerOffsetY.getValue();
+			int width = (int) this.spinnerWidth.getValue();
+			int height = (int) this.spinnerHeight.getValue();
+			this.seperate(file, offsetX, offsetY, width, height);
 		});
 		this.frame.getContentPane().add(this.buttonSeperate, "2, 8, 11, 1, fill, fill");
 		
@@ -122,71 +122,66 @@ public class TextureSeperator
 	
 	public void seperate(File file, int offsetX, int offsetY, int width, int height)
 	{
-		new Thread()
-		{
-			@Override
-			public void run()
+		new Thread(() -> {
+			try
 			{
-				try
+				long time = System.currentTimeMillis();
+				
+				String path = file.getAbsolutePath();
+				int index = path.lastIndexOf('.');
+				if (index == -1)
 				{
-					long time = System.currentTimeMillis();
-					
-					String path = file.getAbsolutePath();
-					int index = path.lastIndexOf('.');
-					if (index == -1)
+					throw new IllegalArgumentException("Invalid File");
+				}
+				
+				File parent = new File(path.substring(0, index));
+				parent.mkdirs();
+				
+				BufferedImage image = ImageIO.read(file);
+				
+				int imageWidth = image.getWidth();
+				int imageHeight = image.getHeight();
+				int offsetWidth = imageWidth - offsetX;
+				int offsetHeight = imageHeight - offsetY;
+				int countX = offsetWidth / width;
+				int countY = offsetHeight / height;
+				
+				int count = 0;
+				int totalCount = countX * countY;
+				
+				this.progressBar.setMaximum(totalCount);
+				
+				for (int x = 0; x < countX; x++)
+				{
+					for (int y = 0; y < countY; y++)
 					{
-						throw new IllegalArgumentException("Invalid File");
-					}
-					
-					File parent = new File(path.substring(0, index));
-					parent.mkdirs();
-					
-					BufferedImage image = ImageIO.read(file);
-					
-					int imageWidth = image.getWidth();
-					int imageHeight = image.getHeight();
-					int offsetWidth = (imageWidth - offsetX);
-					int offsetHeight = (imageHeight - offsetY);
-					int countX = offsetWidth / width;
-					int countY = offsetHeight / height;
-					
-					int count = 0;
-					int totalCount = countX * countY;
-					
-					progressBar.setMaximum(totalCount);
-					
-					for (int x = 0; x < countX; x++)
-					{
-						for (int y = 0; y < countY; y++)
+						try
 						{
-							try
-							{
-								BufferedImage subimage = image.getSubimage(offsetX + x * width, offsetY + y * height, width, height);
-								File newFile = new File(parent, "texture_" + x + "_" + y + ".png");
-								ImageIO.write(subimage, "png", newFile);
-								
-								count++;
-								progressBar.setValue(count);
-								progressBar.setString(count + " / " + totalCount);
-							}
-							catch (Exception ex)
-							{
-								ex.printStackTrace();
-							}
+							BufferedImage subimage = image.getSubimage(offsetX + x * width, offsetY + y * height, width, height);
+							File newFile = new File(parent, "texture_" + x + "_" + y + ".png");
+							ImageIO.write(subimage, "png", newFile);
+							
+							count++;
+							this.progressBar.setValue(count);
+							this.progressBar.setString(count + " / " + totalCount);
+						}
+						catch (Exception ex)
+						{
+							ex.printStackTrace();
 						}
 					}
-					
-					time = (System.currentTimeMillis() - time);
-					long timePerImage = count == 0 ? 0 : time / count;
-					
-					String message = String.format("Successfully generated %d / %d Sub-Textures in %d s (%d ms, %d ms per Sub-Texture).", count, totalCount, time / 1000L, time, timePerImage);
-					JOptionPane.showMessageDialog(frame, message, "Texture Seperator", JOptionPane.INFORMATION_MESSAGE);
 				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();
-				}
+				
+				time = System.currentTimeMillis() - time;
+				long timePerImage = count == 0 ? 0 : time / count;
+				
+				String message = String.format("Successfully generated %d / %d Sub-Textures in %d s (%d ms, %d ms per Sub-Texture).", count, totalCount, time / 1000L, time, timePerImage);
+				JOptionPane.showMessageDialog(this.frame, message, "Texture Seperator", JOptionPane.INFORMATION_MESSAGE);
 			}
-		}.start();
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+		}).start();
 	}
 }
