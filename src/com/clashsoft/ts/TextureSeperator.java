@@ -1,6 +1,5 @@
 package com.clashsoft.ts;
 
-import java.awt.EventQueue;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -14,8 +13,6 @@ import com.jgoodies.forms.layout.RowSpec;
 
 public class TextureSeperator
 {
-	public static File			file;
-	
 	private JFrame				frame;
 	public JLabel				labelTexture;
 	public JLabel				labelOffset;
@@ -40,22 +37,8 @@ public class TextureSeperator
 	
 	public static void main(String[] args)
 	{
-		EventQueue.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					TextureSeperator window = new TextureSeperator();
-					window.frame.setVisible(true);
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-		});
+		TextureSeperator window = new TextureSeperator();
+		window.frame.setVisible(true);
 	}
 	
 	public TextureSeperator()
@@ -69,7 +52,7 @@ public class TextureSeperator
 		this.frame.setTitle("Texture Seperator");
 		this.frame.setBounds(100, 100, 436, 183);
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.MIN_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.GLUE_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("max(46dlu;default)"), FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("max(31dlu;default)"), FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, }));
+		this.frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.MIN_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.GLUE_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("max(46dlu;default)"), FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("max(31dlu;default)"), FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, RowSpec.decode("default:grow"), }));
 		
 		this.labelTexture = new JLabel("Texture:");
 		this.frame.getContentPane().add(this.labelTexture, "2, 2, right, default");
@@ -89,7 +72,8 @@ public class TextureSeperator
 			int ret = fileChooser.showOpenDialog(frame);
 			if (ret == JFileChooser.APPROVE_OPTION)
 			{
-				file = fileChooser.getSelectedFile();
+				File file = fileChooser.getSelectedFile();
+				textFieldFile.setText(file.getAbsolutePath());
 			}
 		});
 		this.frame.getContentPane().add(this.buttonSelectFile, "12, 2");
@@ -120,14 +104,14 @@ public class TextureSeperator
 		
 		this.buttonSeperate = new JButton("Seperate");
 		this.buttonSeperate.addActionListener(e -> {
-			
+			File file = new File(textFieldFile.getText());
 			int offsetX = (int) spinnerOffsetX.getValue();
 			int offsetY = (int) spinnerOffsetY.getValue();
 			int width = (int) spinnerWidth.getValue();
 			int height = (int) spinnerHeight.getValue();
 			seperate(file, offsetX, offsetY, width, height);
 		});
-		this.frame.getContentPane().add(this.buttonSeperate, "2, 8, 11, 3");
+		this.frame.getContentPane().add(this.buttonSeperate, "2, 8, 11, 1, fill, fill");
 	}
 	
 	public void seperate(File file, int offsetX, int offsetY, int width, int height)
