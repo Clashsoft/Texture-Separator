@@ -182,6 +182,10 @@ public class TextureSeperator
 		}
 		
 		File parent = new File(path.substring(0, index));
+		if (parent.exists())
+		{
+			parent.delete();
+		}
 		parent.mkdirs();
 		
 		for (int x = 0; x < countX; x++)
@@ -210,9 +214,9 @@ public class TextureSeperator
 		}
 		
 		time = System.currentTimeMillis() - time;
-		long timePerImage = count == 0 ? 0 : time / count;
+		float seconds = time / 1000F;
 		
-		String message = String.format("Successfully generated %d / %d Sub-Textures in %d s (%d ms, %d ms per Sub-Texture).", count, totalCount, time / 1000L, time, timePerImage);
+		String message = String.format("Successfully generated %d / %d Sub-Textures. \nTime: %.2f s (%.3f s / ST, %.1f ST / s).", count, totalCount, seconds, seconds / count, count / seconds);
 		JOptionPane.showMessageDialog(this.frame, message, "Texture Seperator", JOptionPane.INFORMATION_MESSAGE);
 		
 		this.cancel = false;
