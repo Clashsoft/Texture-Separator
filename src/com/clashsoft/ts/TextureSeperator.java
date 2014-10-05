@@ -125,63 +125,76 @@ public class TextureSeperator
 		new Thread(() -> {
 			try
 			{
-				long time = System.currentTimeMillis();
-				
-				String path = file.getAbsolutePath();
-				int index = path.lastIndexOf('.');
-				if (index == -1)
-				{
-					throw new IllegalArgumentException("Invalid File");
-				}
-				
-				File parent = new File(path.substring(0, index));
-				parent.mkdirs();
-				
-				BufferedImage image = ImageIO.read(file);
-				
-				int imageWidth = image.getWidth();
-				int imageHeight = image.getHeight();
-				int offsetWidth = imageWidth - offsetX;
-				int offsetHeight = imageHeight - offsetY;
-				int countX = offsetWidth / width;
-				int countY = offsetHeight / height;
-				
-				int count = 0;
-				int totalCount = countX * countY;
-				
-				this.progressBar.setMaximum(totalCount);
-				
-				for (int x = 0; x < countX; x++)
-				{
-					for (int y = 0; y < countY; y++)
-					{
-						try
-						{
-							BufferedImage subimage = image.getSubimage(offsetX + x * width, offsetY + y * height, width, height);
-							File newFile = new File(parent, "texture_" + x + "_" + y + ".png");
-							ImageIO.write(subimage, "png", newFile);
-							
-							count++;
-							this.progressBar.setValue(count);
-							this.progressBar.setString(count + " / " + totalCount);
-						}
-						catch (Exception ex)
-						{
-							ex.printStackTrace();
-						}
-					}
-				}
-				
-				time = System.currentTimeMillis() - time;
-				long timePerImage = count == 0 ? 0 : time / count;
-				
-				String message = String.format("Successfully generated %d / %d Sub-Textures in %d s (%d ms, %d ms per Sub-Texture).", count, totalCount, time / 1000L, time, timePerImage);
-				JOptionPane.showMessageDialog(this.frame, message, "Texture Seperator", JOptionPane.INFORMATION_MESSAGE);
+				seperate_(file, offsetX, offsetY, width, height);
 			}
 			catch (Exception ex)
 			{
+				JOptionPane.showMessageDialog(this.frame, "An error occured while generating Sub-Textures: " + ex.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				ex.printStackTrace();
 			}
 		}).start();
+	}
+	
+	public void seperate_(File file, int offsetX, int offsetY, int width, int height) throws Exception
+	{
+		long time = System.currentTimeMillis();
+		
+		BufferedImage image = ImageIO.read(file);
+		
+		int imageWidth = image.getWidth();
+		int imageHeight = image.getHeight();
+		int countX = (imageWidth - offsetX) / width;
+		int countY = (imageHeight - offsetY) / height;
+		
+		int count = 0;
+		int totalCount = countX * countY;
+		
+		if (totalCount > 256)
+		{
+			int i = JOptionPane.showConfirmDialog(this.frame, "Are you sure you want to generate " + totalCount + " Sub-Texture files?", "Confirm large Operation", JOptionPane.YES_NO_OPTION);
+			if (i != JOptionPane.YES_OPTION)
+			{
+				// Abort
+				return;
+			}
+		}
+		
+		this.progressBar.setMaximum(totalCount);
+		
+		String path = file.getAbsolutePath();
+		int index = path.lastIndexOf('.');
+		if (index == -1)
+		{
+			throw new IllegalArgumentException("Invalid File");
+		}
+		
+		File parent = new File(path.substring(0, index));
+		parent.mkdirs();
+		
+		for (int x = 0; x < countX; x++)
+		{
+			for (int y = 0; y < countY; y++)
+			{
+				try
+				{
+					BufferedImage subimage = image.getSubimage(offsetX + x * width, offsetY + y * height, width, height);
+					File newFile = new File(parent, "texture_" + x + "_" + y + ".png");
+					ImageIO.write(subimage, "png", newFile);
+					
+					count++;
+					this.progressBar.setValue(count);
+					this.progressBar.setString(count + " / " + totalCount);
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+		}
+		
+		time = System.currentTimeMillis() - time;
+		long timePerImage = count == 0 ? 0 : time / count;
+		
+		String message = String.format("Successfully generated %d / %d Sub-Textures in %d s (%d ms, %d ms per Sub-Texture).", count, totalCount, time / 1000L, time, timePerImage);
+		JOptionPane.showMessageDialog(this.frame, message, "Texture Seperator", JOptionPane.INFORMATION_MESSAGE);
 	}
 }
