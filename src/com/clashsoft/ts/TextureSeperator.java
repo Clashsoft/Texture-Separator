@@ -1,5 +1,6 @@
 package com.clashsoft.ts;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -56,6 +57,8 @@ public class TextureSeperator
 		this.frame = new JFrame();
 		this.frame.setTitle("Texture Seperator");
 		this.frame.setBounds(100, 100, 420, 160);
+		this.frame.setMinimumSize(new Dimension(420, 160));
+		this.frame.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("50dlu:grow"), FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("50dlu:grow"), FormFactory.RELATED_GAP_COLSPEC, FormFactory.PREF_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, }));
 		
