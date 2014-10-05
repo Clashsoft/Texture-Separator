@@ -196,7 +196,8 @@ public class TextureSeperator
 				try
 				{
 					BufferedImage subimage = image.getSubimage(offsetX + x * width, offsetY + y * height, width, height);
-					File newFile = new File(parent, "texture_" + x + "_" + y + ".png");
+					// Swapped order to go by rows
+					File newFile = new File(parent, "texture_" + y + "_" + x + ".png");
 					ImageIO.write(subimage, "png", newFile);
 					
 					count++;
