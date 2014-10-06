@@ -1,6 +1,7 @@
 package com.clashsoft.ts;
 
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -34,8 +35,9 @@ public class TextureSeperator
 	public JSpinner				spinnerWidth;
 	public JSpinner				spinnerHeight;
 	
-	public JButton				buttonSeperate;
+	public JCheckBox			checkboxLeftover;
 	
+	public JButton				buttonSeperate;
 	public JButton				buttonCancel;
 	
 	public JProgressBar			progressBar;
@@ -69,17 +71,6 @@ public class TextureSeperator
 		
 		this.labelOffset = new JLabel("Offset:");
 		this.frame.getContentPane().add(this.labelOffset, "2, 4, left, default");
-		
-		this.buttonSeperate = new JButton("Seperate");
-		this.buttonSeperate.addActionListener(e -> {
-			File file = new File(this.textFieldFile.getText());
-			int offsetX = (int) this.spinnerOffsetX.getValue();
-			int offsetY = (int) this.spinnerOffsetY.getValue();
-			int width = (int) this.spinnerWidth.getValue();
-			int height = (int) this.spinnerHeight.getValue();
-			this.seperate(file, offsetX, offsetY, width, height);
-		});
-		this.frame.getContentPane().add(this.buttonSeperate, "12, 4, 1, 3, fill, fill");
 		
 		this.labelSubtexture = new JLabel("Size:");
 		this.frame.getContentPane().add(this.labelSubtexture, "2, 6, left, default");
@@ -123,10 +114,21 @@ public class TextureSeperator
 		this.spinnerHeight = new JSpinner(new SpinnerNumberModel(16, 0, Integer.MAX_VALUE, 1));
 		this.frame.getContentPane().add(this.spinnerHeight, "10, 6");
 		
-		this.progressBar = new JProgressBar();
-		this.progressBar.setStringPainted(true);
-		this.progressBar.setString("0 / 0");
-		this.frame.getContentPane().add(this.progressBar, "2, 8, 9, 1");
+		this.checkboxLeftover = new JCheckBox("Leftover");
+		this.checkboxLeftover.setToolTipText("Checks if any leftover pixels should be saved into a new file.");
+		this.frame.getContentPane().add(this.checkboxLeftover, "12, 4");
+		
+		this.buttonSeperate = new JButton("Seperate");
+		this.buttonSeperate.addActionListener(e -> {
+			File file = new File(this.textFieldFile.getText());
+			int offsetX = (int) this.spinnerOffsetX.getValue();
+			int offsetY = (int) this.spinnerOffsetY.getValue();
+			int width = (int) this.spinnerWidth.getValue();
+			int height = (int) this.spinnerHeight.getValue();
+			boolean leftover = this.checkboxLeftover.isSelected();
+			this.seperate(file, offsetX, offsetY, width, height, leftover);
+		});
+		this.frame.getContentPane().add(this.buttonSeperate, "12, 6, fill, fill");
 		
 		this.buttonCancel = new JButton("Cancel");
 		this.buttonCancel.setEnabled(false);
@@ -134,14 +136,19 @@ public class TextureSeperator
 			this.cancel = true;
 		});
 		this.frame.getContentPane().add(this.buttonCancel, "12, 8");
+		
+		this.progressBar = new JProgressBar();
+		this.progressBar.setStringPainted(true);
+		this.progressBar.setString("0 / 0");
+		this.frame.getContentPane().add(this.progressBar, "2, 8, 9, 1");
 	}
 	
-	public void seperate(File file, int offsetX, int offsetY, int width, int height)
+	public void seperate(File file, int offsetX, int offsetY, int width, int height, boolean leftover)
 	{
 		new Thread(() -> {
 			try
 			{
-				this.seperate_(file, offsetX, offsetY, width, height);
+				this.seperate_(file, offsetX, offsetY, width, height, leftover);
 			}
 			catch (Exception ex)
 			{
@@ -151,14 +158,14 @@ public class TextureSeperator
 		}).start();
 	}
 	
-	public void seperate_(File file, int offsetX, int offsetY, int width, int height) throws Exception
+	public void seperate_(File file, int offsetX, int offsetY, int width, int height, boolean leftover) throws Exception
 	{
 		long time = System.currentTimeMillis();
 		
 		BufferedImage image = ImageIO.read(file);
-		
 		int imageWidth = image.getWidth();
 		int imageHeight = image.getHeight();
+		
 		int countX = (imageWidth - offsetX) / width;
 		int countY = (imageHeight - offsetY) / height;
 		
@@ -203,7 +210,9 @@ public class TextureSeperator
 				
 				try
 				{
-					BufferedImage subimage = image.getSubimage(offsetX + x * width, offsetY + y * height, width, height);
+					int x1 = offsetX + x * width;
+					int y1 = offsetY + y * height;
+					BufferedImage subimage = image.getSubimage(x1, y1, width, height);
 					// Swapped order to go by rows
 					File newFile = new File(parent, "texture_" + y + "_" + x + ".png");
 					ImageIO.write(subimage, "png", newFile);
@@ -215,6 +224,16 @@ public class TextureSeperator
 				catch (Exception ex)
 				{}
 			}
+		}
+		
+		if (leftover)
+		{
+			BufferedImage leftoverImage = image.getSubimage(0, 0, imageWidth, imageHeight);
+			Graphics2D graphics = leftoverImage.createGraphics();
+			graphics.fillRect(offsetX, offsetY, width * countX, height * countY);
+			
+			File leftoverFile = new File(parent, "leftover.png");
+			ImageIO.write(leftoverImage, "png", leftoverFile);
 		}
 		
 		time = System.currentTimeMillis() - time;
