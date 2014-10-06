@@ -56,8 +56,8 @@ public class TextureSeperator
 	{
 		this.frame = new JFrame();
 		this.frame.setTitle("Texture Seperator");
-		this.frame.setBounds(100, 100, 420, 160);
-		this.frame.setMinimumSize(new Dimension(420, 160));
+		this.frame.setBounds(100, 100, 430, 160);
+		this.frame.setMinimumSize(new Dimension(430, 160));
 		this.frame.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
 		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("50dlu:grow"), FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, ColumnSpec.decode("50dlu:grow"), FormFactory.RELATED_GAP_COLSPEC, FormFactory.PREF_COLSPEC, FormFactory.RELATED_GAP_COLSPEC, }, new RowSpec[] { FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC, FormFactory.RELATED_GAP_ROWSPEC, }));
@@ -86,7 +86,7 @@ public class TextureSeperator
 		this.textFieldFile.setColumns(10);
 		this.frame.getContentPane().add(this.textFieldFile, "6, 2, 5, 1, fill, default");
 		
-		this.buttonSelectFile = new JButton("Select");
+		this.buttonSelectFile = new JButton("Browse...");
 		this.buttonSelectFile.addActionListener(e -> {
 			int ret = this.fileChooser.showOpenDialog(this.frame);
 			if (ret == JFileChooser.APPROVE_OPTION)
@@ -127,6 +127,7 @@ public class TextureSeperator
 		this.frame.getContentPane().add(this.progressBar, "2, 8, 9, 1");
 		
 		this.buttonCancel = new JButton("Cancel");
+		this.buttonCancel.setEnabled(false);
 		this.buttonCancel.addActionListener(e -> {
 			this.cancel = true;
 		});
@@ -172,6 +173,7 @@ public class TextureSeperator
 			}
 		}
 		
+		this.buttonCancel.setEnabled(true);
 		this.progressBar.setMaximum(totalCount);
 		
 		String path = file.getAbsolutePath();
@@ -216,9 +218,10 @@ public class TextureSeperator
 		time = System.currentTimeMillis() - time;
 		float seconds = time / 1000F;
 		
-		String message = String.format("Successfully generated %d / %d Sub-Textures. \nTime: %.2f s (%.3f s / ST, %.1f ST / s).", count, totalCount, seconds, seconds / count, count / seconds);
+		String message = String.format("Successfully generated %d / %d Sub-Textures.\nTime: %.2f s (%.3f s / ST, %.1f ST / s).", count, totalCount, seconds, seconds / count, count / seconds);
 		JOptionPane.showMessageDialog(this.frame, message, "Texture Seperator", JOptionPane.INFORMATION_MESSAGE);
 		
 		this.cancel = false;
+		this.buttonCancel.setEnabled(false);
 	}
 }
