@@ -9,6 +9,9 @@ sourceSets {
 		java {
 			srcDir 'src/'
 		}
+		resources {
+			srcDir 'src/'
+		}
 	}
 }
 
@@ -17,6 +20,4 @@ repositories {
 }
 
 dependencies {
-	// https://mvnrepository.com/artifact/com.jgoodies/jgoodies-forms
-	compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
 }
