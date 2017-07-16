@@ -1,4 +1,4 @@
-Texture-Seperator
+Texture-Separator
 =================
 
-A tool for seperating textures into smaller sub-textures.
+A tool for converting spritesheets into separate icon files.
