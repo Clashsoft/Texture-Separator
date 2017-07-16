@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+group 'com.clashsoft'
+
+version '2.0.0'
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/'
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// https://mvnrepository.com/artifact/com.jgoodies/jgoodies-forms
+	compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
+}
